@@ -30,7 +30,7 @@ export default function Home() {
 					href="/dashboard"
 					target="_blank"
 				>
-					Get started <ArrowRight className="ml-2 h-5 w-5" />
+					Get Started <ArrowRight className="ml-2 h-5 w-5" />
 				</Link>
 			</MaxWidthWrapper>
 

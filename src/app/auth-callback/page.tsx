@@ -13,7 +13,7 @@ function Page() {
 	const { data, isLoading, error } = trpc.authCallback.useQuery(undefined);
 
 	useEffect(() => {
-		// error code unathorized :
+		// if there is no user data.
 		if (error?.data?.code === 'UNAUTHORIZED') {
 			router.push('/sign-in');
 		}
@@ -28,13 +28,13 @@ function Page() {
 		}
 	}, [data, isLoading]);
 
-	onerror: (err: any) => {
-		if (err.data?.code === 'UNAUTHORIZED') {
-			router.push('/sign-in');
-		}
-	};
-	retry: true;
-	retryDelay: 500;
+	// onerror: (err: any) => {
+	// 	if (err.data?.code === 'UNAUTHORIZED') {
+	// 		router.push('/sign-in');
+	// 		retry: true;
+	// 		retryDelay: 500;
+	// 	}
+	// };
 
 	return (
 		<div className="w-full mt-24 flex justify-center">
