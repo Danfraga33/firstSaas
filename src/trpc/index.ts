@@ -1,3 +1,5 @@
+// This is the server side of the trpc. It injects props into the create trpc
+
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { router, publicProcedure } from './trpc';
 import { TRPCError } from '@trpc/server';
