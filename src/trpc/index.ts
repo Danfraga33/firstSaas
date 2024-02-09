@@ -45,7 +45,7 @@ export const appRouter = router({
 	}),
 	// We use input instead of query as you input a file
 	deleteFile: privateProcedure
-		.input({ id: z.string() })
+		.input(z.object({ id: z.string() }))
 		.mutation(async ({ ctx, input }) => {
 			const { userId } = ctx;
 			const file = await db.file.findFirst({
