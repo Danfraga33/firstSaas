@@ -51,8 +51,20 @@ export const appRouter = router({
 			const file = await db.file.findFirst({
 				where: {
 					id: input.id,
+					// Only the user logged in can delete files, not anyone.
+					userId,
 				},
 			});
+
+			if (!file) throw new TRPCError({ code: 'NOT_FOUND' });
+
+			// If they are deleting one of their own files.
+			await db.file.delete({
+				where: {
+					id: input.id,
+				},
+			});
+			return file;
 		}),
 });
 
