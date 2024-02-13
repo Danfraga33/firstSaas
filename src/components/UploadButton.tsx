@@ -3,14 +3,29 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Progress } from './ui/progress';
-import { Cloud, File } from 'lucide-react';
+import { Cloud, File, Loader } from 'lucide-react';
 import { useState } from 'react';
 import Dropzone from 'react-dropzone';
+import { useUploadThing } from '@/lib/uploadThing';
+import { useToast } from './ui/use-toast';
+import { trpc } from '@/app/_trpc/client';
+import { useRouter } from 'next/navigation';
 
 const UploadDropZone = () => {
+	const router = useRouter();
 	const [isUploading, setIsUploading] = useState<boolean | null>(true);
 	const [uploadProgress, setUploadProgress] = useState<number>(0);
 
+	const { startUpload } = useUploadThing('pdfUploader');
+
+	const { mutate: startPolling } = trpc.getFile.useMutation({
+		onSuccess: (file) => {
+			router.push(`/dashboard/${file.id}`);
+		},
+		// Retry indefintly until we get a success.
+		retry: true,
+		retryDelay: 500,
+	});
 	// determinate progress bar
 	const startSimulatedProgress = () => {
 		setUploadProgress(0);
@@ -26,6 +41,8 @@ const UploadDropZone = () => {
 		}, 500);
 		return interval;
 	};
+
+	const { toast } = useToast();
 	return (
 		<Dropzone
 			multiple={false}
@@ -34,10 +51,33 @@ const UploadDropZone = () => {
 
 				const progressInverval = startSimulatedProgress();
 				// Handle File Uplaoding
+				const res = await startUpload(acceptedFile);
+
+				if (!res) {
+					return toast({
+						title: 'Something went wrong',
+						description: 'Please change again later',
+						variant: 'destructive',
+					});
+				}
 				// await new Promise((resolve) => setTimeout(resolve, 15000));
+
+				const [fileResponse] = res;
+
+				const key = fileResponse.key;
+
+				if (!key) {
+					return toast({
+						title: 'Something went wrong',
+						description: 'Please change again later',
+						variant: 'destructive',
+					});
+				}
 
 				clearInterval(progressInverval);
 				setUploadProgress(100);
+
+				startPolling({ key });
 			}}
 		>
 			{({ getRootProps, getInputProps, acceptedFiles }) => (
