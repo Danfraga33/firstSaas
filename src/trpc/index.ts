@@ -9,7 +9,7 @@ import { z } from 'zod';
 export const appRouter = router({
 	authCallback: publicProcedure.query(async () => {
 		const { getUser } = getKindeServerSession();
-		const user = await getUser();
+		const user = getUser();
 
 		if (!user?.id || !user?.email)
 			throw new TRPCError({ code: 'UNAUTHORIZED' });
@@ -34,8 +34,7 @@ export const appRouter = router({
 		return { success: true };
 	}),
 	getUserFiles: privateProcedure.query(async ({ ctx }) => {
-		// Destructuring the ctx object from trpc.ts
-		const { userId, user } = ctx;
+		const { userId } = ctx;
 
 		return await db.file.findMany({
 			where: {
@@ -45,7 +44,7 @@ export const appRouter = router({
 	}),
 	getFile: privateProcedure
 		.input(z.object({ key: z.string() }))
-		.mutation(async ({ ctx }) => {
+		.mutation(async ({ ctx, input }) => {
 			const { userId } = ctx;
 
 			const file = await db.file.findFirst({
