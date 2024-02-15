@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 
 const UploadDropZone = () => {
 	const router = useRouter();
-	const [isUploading, setIsUploading] = useState<boolean | null>(true);
+	const [isUploading, setIsUploading] = useState<boolean>(true);
 	const [uploadProgress, setUploadProgress] = useState<number>(0);
 
 	const { startUpload } = useUploadThing('pdfUploader');
@@ -26,6 +26,7 @@ const UploadDropZone = () => {
 		retry: true,
 		retryDelay: 500,
 	});
+
 	// determinate progress bar
 	const startSimulatedProgress = () => {
 		setUploadProgress(0);
