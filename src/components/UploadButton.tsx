@@ -1,19 +1,19 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Progress } from './ui/progress';
 import { Cloud, File, Loader } from 'lucide-react';
 import { useState } from 'react';
 import Dropzone from 'react-dropzone';
 import { useUploadThing } from '@/lib/uploadThing';
+import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
 import { trpc } from '@/app/_trpc/client';
 import { useRouter } from 'next/navigation';
 
 const UploadDropZone = () => {
 	const router = useRouter();
-	const [isUploading, setIsUploading] = useState<boolean>(true);
+	const [isUploading, setIsUploading] = useState<boolean>(false);
 	const [uploadProgress, setUploadProgress] = useState<number>(0);
 
 	const { startUpload } = useUploadThing('pdfUploader');
@@ -32,12 +32,12 @@ const UploadDropZone = () => {
 		setUploadProgress(0);
 
 		const interval = setInterval(() => {
-			setUploadProgress((prevV) => {
-				if (prevV >= 95) {
+			setUploadProgress((prevProgress) => {
+				if (prevProgress >= 95) {
 					clearInterval(interval);
-					return prevV;
+					return prevProgress;
 				}
-				return prevV + 5;
+				return prevProgress + 5;
 			});
 		}, 500);
 		return interval;
@@ -57,7 +57,7 @@ const UploadDropZone = () => {
 				if (!res) {
 					return toast({
 						title: 'Something went wrong',
-						description: 'Please change again later',
+						description: 'Please try again later',
 						variant: 'destructive',
 					});
 				}
@@ -66,6 +66,7 @@ const UploadDropZone = () => {
 				const [fileResponse] = res;
 
 				const key = fileResponse.key;
+				console.log(key);
 
 				if (!key) {
 					return toast({
@@ -101,7 +102,7 @@ const UploadDropZone = () => {
 							</div>
 
 							{acceptedFiles && acceptedFiles[0] ? (
-								<div className="flex max-w-xs bg-white items-center rounded-md overflow-hidden outline-[1px]outline-zinc-200 divide-x">
+								<div className="max-w-xs bg-white flex items-center rounded-md overflow-hidden outline outline-[1px] outline-zinc-200 divide-x divide-zinc-200">
 									<div className="px-3 py-2 h-full grid place-items-center">
 										<File className="w-4 h-4 text-blue-500" />
 									</div>
@@ -128,7 +129,7 @@ const UploadDropZone = () => {
 								</div>
 							) : null}
 							<input
-								{...getInputProps}
+								{...getInputProps()}
 								type="file"
 								id="dropzone-file"
 								className="hidden"

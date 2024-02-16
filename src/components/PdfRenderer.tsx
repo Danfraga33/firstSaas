@@ -12,14 +12,16 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { useToast } from './ui/use-toast';
-import { useResizeDetector } from 'react-resize-detector';
 
+import { useResizeDetector } from 'react-resize-detector';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useState } from 'react';
+
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod'; //To connect form
+
+import { zodResolver } from '@hookform/resolvers/zod';
 import { cn } from '@/lib/utils';
 import {
 	DropdownMenu,
@@ -33,13 +35,14 @@ import PdfFullscreen from './PdfFullscreen';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-import 'simplebar-react/dist/simplebar.min.css';
-
-interface PDFRendererProps {
+interface PdfRendererProps {
 	url: string;
 }
 
-const PdfRenderer = ({ url }: PDFRendererProps) => {
+const PdfRenderer = ({ url }: PdfRendererProps) => {
+	console.log(url);
+	const { toast } = useToast();
+
 	const [numPages, setNumPages] = useState<number>();
 	const [currPage, setCurrPage] = useState<number>(1);
 	const [scale, setScale] = useState<number>(1);
@@ -56,7 +59,6 @@ const PdfRenderer = ({ url }: PDFRendererProps) => {
 
 	type TCustomPageValidator = z.infer<typeof CustomPageValidator>;
 
-	// We need a resolved to link CustomPageValidator together = resolver: zodResolver(CustomPageValidator),
 	const {
 		register,
 		handleSubmit,
@@ -66,29 +68,30 @@ const PdfRenderer = ({ url }: PDFRendererProps) => {
 		defaultValues: {
 			page: '1',
 		},
-		// Check for errors
 		resolver: zodResolver(CustomPageValidator),
 	});
 
+	// console.log(errors);
+
 	const { width, ref } = useResizeDetector();
-	const { toast } = useToast();
 
 	const handlePageSubmit = ({ page }: TCustomPageValidator) => {
 		setCurrPage(Number(page));
 		setValue('page', String(page));
 	};
+
 	return (
 		<div className="w-full bg-white rounded-md shadow flex flex-col items-center">
 			<div className="h-14 w-full border-b border-zinc-200 flex items-center justify-between px-2">
-				<div className="flex gap-1.5 items-center">
+				<div className="flex items-center gap-1.5">
 					<Button
 						disabled={currPage <= 1}
-						variant="ghost"
-						aria-label="previous-page"
 						onClick={() => {
 							setCurrPage((prev) => (prev - 1 > 1 ? prev - 1 : 1));
 							setValue('page', String(currPage - 1));
 						}}
+						variant="ghost"
+						aria-label="previous page"
 					>
 						<ChevronDown className="h-4 w-4" />
 					</Button>
@@ -102,7 +105,7 @@ const PdfRenderer = ({ url }: PDFRendererProps) => {
 							)}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter') {
-									handleSubmit(handlePageSubmit);
+									handleSubmit(handlePageSubmit)();
 								}
 							}}
 						/>
@@ -121,7 +124,7 @@ const PdfRenderer = ({ url }: PDFRendererProps) => {
 							setValue('page', String(currPage + 1));
 						}}
 						variant="ghost"
-						aria-label="next-page"
+						aria-label="next page"
 					>
 						<ChevronUp className="h-4 w-4" />
 					</Button>
@@ -130,9 +133,10 @@ const PdfRenderer = ({ url }: PDFRendererProps) => {
 				<div className="space-x-2">
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button ariea-label="zoom" variant="ghost" className="gap-1.5">
-								<Search className="w-4 h-4" />
-								{scale! * 100}%<ChevronDown className="h-3 w-3 opacity-50" />
+							<Button className="gap-1.5" aria-label="zoom" variant="ghost">
+								<Search className="h-4 w-4" />
+								{scale * 100}%
+								<ChevronDown className="h-3 w-3 opacity-50" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent>
@@ -145,16 +149,16 @@ const PdfRenderer = ({ url }: PDFRendererProps) => {
 							<DropdownMenuItem onSelect={() => setScale(2)}>
 								200%
 							</DropdownMenuItem>
-							<DropdownMenuItem onSelect={() => setScale(2)}>
+							<DropdownMenuItem onSelect={() => setScale(2.5)}>
 								250%
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
 
 					<Button
-						aria-label="rotate-90deg"
-						variant="ghost"
 						onClick={() => setRotation((prev) => prev + 90)}
+						variant="ghost"
+						aria-label="rotate 90 degrees"
 					>
 						<RotateCw className="h-4 w-4" />
 					</Button>
@@ -164,11 +168,9 @@ const PdfRenderer = ({ url }: PDFRendererProps) => {
 			</div>
 
 			<div className="flex-1 w-full max-h-screen">
-				<SimpleBar autoHide={false} className="max-h-[calc(100vh)]">
+				<SimpleBar autoHide={false} className="max-h-[calc(100vh-10rem)]">
 					<div ref={ref}>
 						<Document
-							onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-							file={url}
 							loading={
 								<div className="flex justify-center">
 									<Loader2 className="my-24 h-6 w-6 animate-spin" />
@@ -176,20 +178,21 @@ const PdfRenderer = ({ url }: PDFRendererProps) => {
 							}
 							onLoadError={() => {
 								toast({
-									title: 'Error Landing PDF',
+									title: 'Error loading PDF',
 									description: 'Please try again later',
 									variant: 'destructive',
 								});
 							}}
+							onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+							file={url}
 							className="max-h-full"
 						>
-							{/* No FLickering when zooming */}
 							{isLoading && renderedScale ? (
 								<Page
-									rotate={rotation}
-									scale={scale}
 									width={width ? width : 1}
 									pageNumber={currPage}
+									scale={scale}
+									rotate={rotation}
 									key={'@' + renderedScale}
 								/>
 							) : null}
@@ -197,15 +200,16 @@ const PdfRenderer = ({ url }: PDFRendererProps) => {
 							<Page
 								className={cn(isLoading ? 'hidden' : '')}
 								width={width ? width : 1}
-								rotate={rotation}
+								pageNumber={currPage}
 								scale={scale}
+								rotate={rotation}
 								key={'@' + scale}
 								loading={
 									<div className="flex justify-center">
 										<Loader2 className="my-24 h-6 w-6 animate-spin" />
 									</div>
 								}
-								pageNumber={currPage}
+								onRenderSuccess={() => setRenderedScale(scale)}
 							/>
 						</Document>
 					</div>
