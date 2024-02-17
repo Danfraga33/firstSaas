@@ -22,8 +22,8 @@ interface Props {
 }
 
 export const ChatConextProvider = ({ fileId, children }: Props) => {
-   const [message, setMessage] = useState<string>('');
-   const [loading, setIsLoading] = useState<boolean>(false)
+	const [message, setMessage] = useState<string>('');
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const toast = useToast();
 
@@ -43,7 +43,9 @@ export const ChatConextProvider = ({ fileId, children }: Props) => {
 		},
 	});
 
-	const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement) => {setMessage(e.target.value) };
+	const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		setMessage(e.target.value);
+	};
 
 	const addMessage = () => sendMessage({ message });
 	return (
