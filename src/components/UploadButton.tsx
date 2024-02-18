@@ -1,17 +1,18 @@
 'use client';
 
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Progress } from './ui/progress';
-import { Cloud, File, Loader } from 'lucide-react';
 import { useState } from 'react';
-import Dropzone from 'react-dropzone';
-import { useUploadThing } from '@/lib/uploadThing';
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
 import { Button } from './ui/button';
+
+import Dropzone from 'react-dropzone';
+import { Cloud, File, Loader2 } from 'lucide-react';
+import { Progress } from './ui/progress';
+import { useUploadThing } from '@/lib/uploadThing';
 import { useToast } from './ui/use-toast';
 import { trpc } from '@/app/_trpc/client';
 import { useRouter } from 'next/navigation';
 
-const UploadDropZone = () => {
+const UploadDropzone = () => {
 	const router = useRouter();
 	const [isUploading, setIsUploading] = useState<boolean>(false);
 	const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -122,7 +123,7 @@ const UploadDropZone = () => {
 									/>
 									{uploadProgress === 100 ? (
 										<div className="flex gap-2 items-center justify-center text-sm text-zinc-700 text-center pt-2">
-											<Loader className="h-3 w-3 animate-spin " />
+											<Loader2 className="h-3 w-3 animate-spin " />
 											Redirecting...
 										</div>
 									) : null}
@@ -149,7 +150,7 @@ const UploadButton = () => {
 			</DialogTrigger>
 
 			<DialogContent>
-				<UploadDropZone />
+				<UploadDropzone />
 			</DialogContent>
 		</Dialog>
 	);
