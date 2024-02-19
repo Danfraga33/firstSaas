@@ -21,7 +21,7 @@ interface Props {
 	children: ReactNode;
 }
 
-export const ChatConextProvider = ({ fileId, children }: Props) => {
+export const ChatContextProvider = ({ fileId, children }: Props) => {
 	const [message, setMessage] = useState<string>('');
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -51,7 +51,9 @@ export const ChatConextProvider = ({ fileId, children }: Props) => {
 	return (
 		<ChatContext.Provider
 			value={{ addMessage, message, handleInputChange, isLoading }}
-		></ChatContext.Provider>
+		>
+			{children}
+		</ChatContext.Provider>
 	);
 };
 ///////////////////////
