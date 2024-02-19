@@ -54,7 +54,7 @@ export const appRouter = router({
 
 			if (!file) return { status: 'PENDING' as const };
 
-			return { status: file.uploadedStatus };
+			return { status: file.uploadStatus };
 		}),
 	getFile: privateProcedure
 		.input(z.object({ key: z.string() }))
