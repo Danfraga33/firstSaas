@@ -2,9 +2,10 @@ import { db } from '@/db';
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { createUploadthing, type FileRouter } from 'uploadthing/next';
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
-import { pinecone } from '@/lib/pinecone';
-import { OpenAIEmbeddings } from '@langchain/openai';
-import { PineconeStore } from '@langchain/pinecone';
+import { getPineconeClient } from '@/lib/pinecone';
+import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
+import { PineconeStore } from 'langchain/vectorstores/pinecone';
+
 const f = createUploadthing();
 
 const auth = (req: Request) => ({ id: 'fakeId' });
@@ -42,14 +43,16 @@ export const ourFileRouter = {
 				const pagesAnt = pageLevelDocs.length;
 
 				// Vectorize and index entire doc
-				const pineconeIndex = pinecone.index('firstsaas');
+				console.log('Creating Pinecone');
+				const pinecone = await getPineconeClient();
+
+				const pineconeIndex = pinecone.Index('firstsaas');
 
 				const embeddings = new OpenAIEmbeddings({
 					openAIApiKey: process.env.OPENAI_API_KEY,
 				});
 
 				await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
-					//@ts-ignore
 					pineconeIndex,
 					namespace: createdFile.id,
 				});
