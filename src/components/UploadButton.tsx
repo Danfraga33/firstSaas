@@ -67,7 +67,7 @@ const UploadDropzone = () => {
 				const [fileResponse] = res;
 
 				const key = fileResponse.key;
-				console.log(key);
+				// console.log(key);
 
 				if (!key) {
 					return toast({
