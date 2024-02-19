@@ -8,14 +8,17 @@ const Page = async () => {
 	const user = getUser();
 
 	if (!user || !user.id) redirect('/auth-callback?origin=dashboard');
+	try {
+		const dbUser = await db.user.findFirst({
+			where: {
+				id: user.id,
+			},
+		});
 
-	const dbUser = await db.user.findFirst({
-		where: {
-			id: user.id,
-		},
-	});
-
-	if (!dbUser) redirect('/auth-callback?origin=dashboard');
+		if (!dbUser) redirect('/auth-callback?origin=dashboard');
+	} catch (err) {
+		console.error(err);
+	}
 
 	return <Dashboard />;
 };
