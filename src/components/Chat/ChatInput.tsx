@@ -22,7 +22,7 @@ const ChatInput = ({ isDisabled }: ChatInputProps) => {
 							<Textarea
 								placeholder="Enter your message..."
 								ref={textareaRef}
-								maxRows={4}
+								// maxRows={4}
 								rows={1}
 								autoFocus
 								onChange={handleInputChange}
@@ -39,7 +39,7 @@ const ChatInput = ({ isDisabled }: ChatInputProps) => {
 							/>
 
 							<Button
-								disabled={isLoading || isDisabled}
+								// disabled={isLoading || isDisabled}
 								className="absolute bottom-1.5 right-[8px]"
 								aria-label="send message"
 								type="submit"

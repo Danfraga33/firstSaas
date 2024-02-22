@@ -2,9 +2,11 @@ import { db } from '@/db';
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { createUploadthing, type FileRouter } from 'uploadthing/next';
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
-import { getPineconeClient } from '@/lib/pinecone';
+import { pinecone } from '@/lib/pinecone';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
+import { Pinecone } from '@pinecone-database/pinecone';
+import OpenAI from 'openai';
 
 const f = createUploadthing();
 
@@ -44,18 +46,30 @@ export const ourFileRouter = {
 
 				// Vectorize and index entire doc
 				console.log('Creating Pinecone');
-				const pinecone = await getPineconeClient();
-
+				// Init OpenAI
+				const openai = new OpenAI({
+					apiKey: process.env.OPENAI_API_KEY,
+				});
+				// Init Pinecone
+				const pinecone = new Pinecone({
+					apiKey: process.env.PINECONE_API_KEY!,
+				});
 				const pineconeIndex = pinecone.Index('firstsaas');
 
+				// create embeddings
 				const embeddings = new OpenAIEmbeddings({
 					openAIApiKey: process.env.OPENAI_API_KEY,
 				});
-
-				await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
-					pineconeIndex,
-					namespace: createdFile.id,
-				});
+				const vectorArr = await embeddings.embedQuery('TEST');
+				console.log('VECTOR ARR 👀👀', vectorArr);
+				// Store Embeddings in Pinecone
+				await pineconeIndex.namespace('ns1').upsert([
+					{
+						id: 'vec1',
+						values: vectorArr,
+					},
+				]);
+				console.log('CreatedFile.ID:', createdFile.id);
 
 				await db.file.update({
 					data: {

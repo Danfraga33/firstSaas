@@ -28,6 +28,8 @@ const Page = async ({ params }: PageProps) => {
 	// console.log('FILE💥', file);
 
 	if (!file) notFound();
+	// console.log('FILEID 🎟️', fileId);
+	// console.log('FILE.ID🗣️', file.id);
 	return (
 		<div className="flex-1 justify-between flex flex-col h-[calc(100vh - 3.5rem)]">
 			{/* Offset navbar -3.5rem */}

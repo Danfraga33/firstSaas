@@ -50,11 +50,13 @@ const UploadDropzone = () => {
 			multiple={false}
 			onDrop={async (acceptedFile) => {
 				setIsUploading(true);
-
+				// THIS IS ON DROP - SO THIS ONLY RUNS WHEN A FILE IS DROPPED INTO THE DROPZONE
+				// Start UX/UI simulatedProgress
 				const progressInverval = startSimulatedProgress();
 				// Handle File Uplaoding
+				// res is the response from uploadthing
 				const res = await startUpload(acceptedFile);
-
+				// If no response
 				if (!res) {
 					return toast({
 						title: 'Something went wrong',
@@ -62,12 +64,13 @@ const UploadDropzone = () => {
 						variant: 'destructive',
 					});
 				}
-				// await new Promise((resolve) => setTimeout(resolve, 15000));
 
+				// The value at the first index of the resonse. Which is the file response
+				console.log('RES⚡⚡', res);
 				const [fileResponse] = res;
-
+				// Key is
 				const key = fileResponse.key;
-				// console.log(key);
+				console.log('KEY🚀🚀', key);
 
 				if (!key) {
 					return toast({
@@ -79,7 +82,7 @@ const UploadDropzone = () => {
 
 				clearInterval(progressInverval);
 				setUploadProgress(100);
-
+				// StartPolling function executes the TRPC function to get the file
 				startPolling({ key });
 			}}
 		>

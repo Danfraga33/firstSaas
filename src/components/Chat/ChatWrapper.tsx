@@ -22,6 +22,7 @@ const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
 				data?.status === 'SUCCESS' || data?.status === 'FAILED' ? false : 500,
 		}
 	);
+	console.log('STATUS🔴', data); // FAILED ALWAYS
 
 	if (isLoading)
 		return (
@@ -89,7 +90,7 @@ const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
 		<ChatContextProvider fileId={fileId}>
 			<div className="relative bg-zinc-50 min-h-full divide-zinc-200 flex flex-col justify-between divide-y gap-2">
 				<div className="flex-1 justify-between mb-28 flex flex-col">
-					<Messages />
+					<Messages fileId={fileId} />
 				</div>
 
 				<ChatInput isDisabled />
