@@ -23,6 +23,7 @@ export const ourFileRouter = {
 			return { userId: user.id };
 		})
 		.onUploadComplete(async ({ metadata, file }) => {
+			console.log('FILE🤮🤢🤢', file);
 			const createdFile = await db.file.create({
 				data: {
 					key: file.key,
@@ -51,9 +52,6 @@ export const ourFileRouter = {
 					apiKey: process.env.OPENAI_API_KEY,
 				});
 				// Init Pinecone
-				const pinecone = new Pinecone({
-					apiKey: process.env.PINECONE_API_KEY!,
-				});
 				const pineconeIndex = pinecone.Index('firstsaas');
 
 				// create embeddings
@@ -61,15 +59,20 @@ export const ourFileRouter = {
 					openAIApiKey: process.env.OPENAI_API_KEY,
 				});
 				const vectorArr = await embeddings.embedQuery('TEST');
-				console.log('VECTOR ARR 👀👀', vectorArr);
+				// console.log('VECTOR ARR 👀👀', vectorArr);
 				// Store Embeddings in Pinecone
-				await pineconeIndex.namespace('ns1').upsert([
-					{
-						id: 'vec1',
-						values: vectorArr,
-					},
-				]);
-				console.log('CreatedFile.ID:', createdFile.id);
+				await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
+					pineconeIndex,
+					namespace: createdFile.key,
+				});
+
+				// await pineconeIndex.namespace(file.key).upsert([
+				// 	{
+				// 		id: 'vec1',
+				// 		values: vectorArr,
+				// 	},
+				// ]);
+				// console.log('CreatedFile🧑‍💻🧑‍💻🧑‍💻:', createdFile);
 
 				await db.file.update({
 					data: {
