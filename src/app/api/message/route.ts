@@ -6,6 +6,7 @@ import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { NextRequest } from 'next/server';
+import { Pinecone } from '@pinecone-database/pinecone';
 
 import { OpenAIStream, StreamingTextResponse } from 'ai';
 
@@ -31,6 +32,7 @@ export const POST = async (req: NextRequest) => {
 			userId,
 		},
 	});
+	console.log('FILE🤖🤖:', file);
 
 	if (!file) return new Response('Not Found', { status: 404 });
 
@@ -43,19 +45,26 @@ export const POST = async (req: NextRequest) => {
 		},
 	});
 
-	// 1. Vectorize Message
+	// 1: vectorize Message
+	// Init Embeddings function
 	const embeddings = new OpenAIEmbeddings({
 		openAIApiKey: process.env.OPENAI_API_KEY,
 	});
 
+	// Assign the pinecone Index
 	const pineconeIndex = pinecone.Index('firstsaas');
-
+	// Return the vectorStore
 	const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
 		pineconeIndex,
-		namespace: file.id,
+		namespace: file.key,
 	});
+	// console.log('VECTORSTORE🔫🔫', vectorStore);
+	console.log('MESSAGE📝📝📝', message);
 
+	// 3. Similarity Search
 	const results = await vectorStore.similaritySearch(message, 4);
+	console.log('RESULTS😊😊😊', results);
+	// const vectorMsg = await embeddings.embedQuery(message); //NOT NEEDED
 
 	const prevMessages = await db.message.findMany({
 		where: {
@@ -98,7 +107,7 @@ export const POST = async (req: NextRequest) => {
 	  
 	  CONTEXT:
 	  ${results.map((r) => r.pageContent).join('\n\n')}
-	  
+
 	  USER INPUT: ${message}`,
 			},
 		],
