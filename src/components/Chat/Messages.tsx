@@ -1,15 +1,18 @@
 import { trpc } from '@/app/_trpc/client';
 import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query';
 import { Loader2, MessageSquare } from 'lucide-react';
-import React from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import Message from './Message';
+import { ChatContext } from './ChatContext';
+import { useIntersection } from '@mantine/hooks';
 
 interface MessagesProps {
 	fileId: string;
 }
 
 const Messages = ({ fileId }: MessagesProps) => {
+	const { isLoading: isAIThinking } = useContext(ChatContext);
 	const { data, isLoading, fetchNextPage } =
 		trpc.getFileMessages.useInfiniteQuery(
 			{
@@ -36,9 +39,22 @@ const Messages = ({ fileId }: MessagesProps) => {
 	};
 
 	const combinedMessages = [
-		...(true ? [loadingMessage] : []),
+		...(isAIThinking ? [loadingMessage] : []),
 		...(messages ?? []),
 	];
+
+	const lastMessageRef = useRef<HTMLDivElement>(null);
+
+	const { ref, entry } = useIntersection({
+		root: lastMessageRef.current,
+		threshold: 1,
+	});
+
+	useEffect(() => {
+		if (entry?.isIntersecting) {
+			fetchNextPage();
+		}
+	}, [entry, fetchNextPage]);
 	return (
 		<div className="flex max-h-[calc(100vh-3.5rem-7rem)] border-zinc-200 flex-1 flex-col-reverse gap-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-thumb-track-blue scrolling-touch">
 			{combinedMessages && combinedMessages.length > 0 ? (
@@ -50,6 +66,7 @@ const Messages = ({ fileId }: MessagesProps) => {
 					if (i === combinedMessages.length - 1) {
 						return (
 							<Message
+								ref={ref}
 								message={message}
 								isNextMessageSamePerson={isNextMessageSamePerson}
 								key={message.id}
@@ -76,8 +93,7 @@ const Messages = ({ fileId }: MessagesProps) => {
 					<MessageSquare className="h-8 w-8 text-blue-500" />
 					<h3 className="font-semibold text-xl">You&apos;re all set</h3>
 					<p className="text-zinc-500 text-sm">
-						{' '}
-						Ask your first question to get started.{' '}
+						Ask your first question to get started
 					</p>
 				</div>
 			)}

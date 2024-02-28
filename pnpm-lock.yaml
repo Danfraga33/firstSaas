@@ -12,7 +12,7 @@ dependencies:
     specifier: ^1.8.18
     version: 1.9.2(react-dom@18.2.0)(react@18.2.0)
   '@mantine/hooks':
-    specifier: ^7.0.1
+    specifier: ^7.5.2
     version: 7.5.2(react@18.2.0)
   '@pinecone-database/pinecone':
     specifier: ^2.0.1
