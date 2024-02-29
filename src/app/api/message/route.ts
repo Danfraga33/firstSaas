@@ -56,7 +56,7 @@ export const POST = async (req: NextRequest) => {
 	// Return the vectorStore
 	const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
 		pineconeIndex,
-		namespace: file.key,
+		namespace: file.id,
 	});
 	// console.log('VECTORSTORE🔫🔫', vectorStore);
 	console.log('MESSAGE📝📝📝', message);

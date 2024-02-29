@@ -5,7 +5,6 @@ import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { pinecone } from '@/lib/pinecone';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
-import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from 'openai';
 
 const f = createUploadthing();
@@ -26,6 +25,7 @@ export const ourFileRouter = {
 			console.log('FILE🤮🤢🤢', file);
 			const createdFile = await db.file.create({
 				data: {
+					// ID IS auto-generated
 					key: file.key,
 					name: file.name,
 					userId: metadata.userId,
@@ -63,7 +63,7 @@ export const ourFileRouter = {
 				// Store Embeddings in Pinecone
 				await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
 					pineconeIndex,
-					namespace: createdFile.key,
+					namespace: createdFile.id,
 				});
 
 				// await pineconeIndex.namespace(file.key).upsert([
