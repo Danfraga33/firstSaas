@@ -50,7 +50,7 @@ const UploadDropzone = () => {
 			multiple={false}
 			onDrop={async (acceptedFile) => {
 				setIsUploading(true);
-				// THIS IS ON DROP - SO THIS ONLY RUNS WHEN A FILE IS DROPPED INTO THE DROPZONE
+				// THIS ONLY RUNS WHEN A FILE IS DROPPED INTO THE DROPZONE
 				// Start UX/UI simulatedProgress
 				const progressInverval = startSimulatedProgress();
 				// Handle File Uplaoding
