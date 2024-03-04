@@ -59,12 +59,12 @@ export const POST = async (req: NextRequest) => {
 		namespace: file.id,
 	});
 	// console.log('VECTORSTORE🔫🔫', vectorStore);
-	console.log('MESSAGE📝📝📝', message);
+	// console.log('MESSAGE📝📝📝', message);
 
 	// 3. Similarity Search
 	const results = await vectorStore.similaritySearch(message, 4);
-	console.log('RESULTS😊😊😊', results);
-	// const vectorMsg = await embeddings.embedQuery(message); //NOT NEEDED
+	// console.log('RESULTS😊😊😊', results);
+	const vectorMsg = await embeddings.embedQuery(message); //NOT NEEDED
 
 	const prevMessages = await db.message.findMany({
 		where: {
