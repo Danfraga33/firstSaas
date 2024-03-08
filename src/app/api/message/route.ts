@@ -89,7 +89,7 @@ export const POST = async (req: NextRequest) => {
 			{
 				role: 'system',
 				content:
-					'Use the following pieces of context (or previous conversaton if needed) to answer the users question in markdown format.',
+					'Use the following pieces of context (or previous conversaton if needed), to answer the users question in markdown format.',
 			},
 			{
 				role: 'user',
